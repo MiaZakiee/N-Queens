@@ -13,13 +13,12 @@ namespace ACT4
 {
     public partial class Form1 : Form
     {
+
         int side;
         int n = 6;
         SixState startState;
         SixState currentState;
         int moveCounter;
-
-        //bool stepMove = true;
 
         int[,] hTable;
         ArrayList bMoves;
@@ -96,6 +95,11 @@ namespace ACT4
             }
         }
 
+        private double getTemperature(int hValue)
+        {
+            return Math.Pow(Math.E, -hValue / (moveCounter + 1));
+        }
+
         private SixState randomSixState()
         {
             Random r = new Random();
@@ -112,29 +116,29 @@ namespace ACT4
         private int getAttackingPairs(SixState f)
         {
             int attackers = 0;
-            
+
             for (int rf = 0; rf < n; rf++)
             {
-                for (int tar = rf+1; tar < n; tar++)
+                for (int tar = rf + 1; tar < n; tar++)
                 {
                     // get horizontal attackers
                     if (f.Y[rf] == f.Y[tar])
                         attackers++;
                 }
-                for (int tar = rf+1; tar < n; tar++)
+                for (int tar = rf + 1; tar < n; tar++)
                 {
                     // get diagonal down attackers
                     if (f.Y[tar] == f.Y[rf] + tar - rf)
                         attackers++;
                 }
-                for (int tar = rf+1; tar < n; tar++)
+                for (int tar = rf + 1; tar < n; tar++)
                 {
                     // get diagonal up attackers
                     if (f.Y[rf] == f.Y[tar] + tar - rf)
                         attackers++;
                 }
             }
-            
+
             return attackers;
         }
 
@@ -160,6 +164,8 @@ namespace ACT4
             ArrayList bestMoves = new ArrayList();
             int bestHeuristicValue = heuristicTable[0, 0];
 
+            Random r = new Random();
+
             for (int i = 0; i < n; i++)
             {
                 for (int j = 0; j < n; j++)
@@ -170,14 +176,30 @@ namespace ACT4
                         bestMoves.Clear();
                         if (currentState.Y[i] != j)
                             bestMoves.Add(new Point(i, j));
-                    } else if (bestHeuristicValue == heuristicTable[i,j])
+                    }
+                    // Hill climb search
+                    // else if (bestHeuristicValue == heuristicTable[i, j])
+
+                    //{
+
+                    //    if (currentState.Y[i] != j)
+
+                    //        bestMoves.Add(new Point(i, j));
+
+                    //}
+
+                    // Simulated Annealing Search
+                    else if (bestHeuristicValue == heuristicTable[i, j] ||
+                        r.NextDouble() <= getTemperature(heuristicTable[i, j]))
                     {
-                        if (currentState.Y[i] != j)
+                            if (currentState.Y[i] != j)
+                        {
                             bestMoves.Add(new Point(i, j));
+                        }
                     }
                 }
             }
-            label5.Text = "Possible Moves (H="+bestHeuristicValue+")";
+            label5.Text = "Possible Moves (H=" + bestHeuristicValue + ")";
             return bestMoves;
         }
 
@@ -211,7 +233,7 @@ namespace ACT4
         private void button1_Click(object sender, EventArgs e)
         {
             if (getAttackingPairs(currentState) > 0)
-               executeMove((Point)chosenMove);
+                executeMove((Point)chosenMove);
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -237,6 +259,6 @@ namespace ACT4
         private void Form1_Load(object sender, EventArgs e)
         {
 
-        }        
+        }
     }
 }
